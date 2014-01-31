@@ -186,10 +186,10 @@ else:
     HAYSTACK_CONNECTIONS = {
         'default': {
             #'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-            #'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-            #'PATH': os.path.join(PROJECT_DIR, 'whoosh_index'),
-            'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-            'URL': 'http://localhost:8983/solr'
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': os.path.join(PROJECT_DIR, 'whoosh_index'),
+            #'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+            #'URL': 'http://localhost:8983/solr'
         },
     }
     BASE_ABS_URL = "http://localhost:8000"

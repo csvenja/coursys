@@ -936,3 +936,28 @@ def photo_agreement(request):
     context = {"form": form}
     return render(request, "dashboard/photo_agreement.html", context)
 
+
+from haystack.query import SearchQuerySet
+from django.utils.html import conditional_escape
+def site_search(request):
+    # Things that would be nice:
+    # activities in your courses
+    # students in your courses (instructor)
+    # pages you can access
+    # discussion in your courses
+    # grad students you admin/supervise
+    # advisors: students/advisornote content
+    # marking comments
+
+    q = request.GET.get('q', '')
+
+    if q:
+        results = SearchQuerySet().filter(text=q)
+    else:
+        results = []
+
+
+    return HttpResponse('<br/>'.join(
+        [conditional_escape(r.search_display) for r in results]
+    ))
+
