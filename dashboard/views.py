@@ -937,8 +937,37 @@ def photo_agreement(request):
     return render(request, "dashboard/photo_agreement.html", context)
 
 
+
+
 from haystack.query import SearchQuerySet
-from django.utils.html import conditional_escape
+from haystack.inputs import AutoQuery, Exact, Clean
+import itertools
+
+def _query_results(query, person):
+    if len(query) < 2:
+        return []
+
+    # offerings person was a member of
+    members = Member.objects.filter(person=person).exclude(role='DROP').select_related('offering')
+    offering_slugs = set(m.offering.slug for m in members)
+    offering_results = SearchQuerySet().models(CourseOffering).filter(text=Clean(query)) # offerings that match the query
+    offering_results = offering_results.filter(slug__in=offering_slugs) # ... and this person was in
+
+    # students taught by instructor
+    instr_members = Member.objects.filter(person=person, role='INST').select_related('offering')
+    if instr_members:
+        offering_slugs = set(m.offering.slug for m in instr_members)
+        member_results = SearchQuerySet().models(Member).filter(text=Clean(query)) # members that match the query
+        member_results = member_results.filter(offering_slug__in=offering_slugs) # ... and this person was the instructor for
+        member_results = member_results.load_all()
+    else:
+        member_results = []
+
+    results = itertools.chain(offering_results, member_results)
+    results = list(results)
+
+    return results
+
 def site_search(request):
     # Things that would be nice:
     # activities in your courses
@@ -949,15 +978,22 @@ def site_search(request):
     # advisors: students/advisornote content
     # marking comments
 
-    q = request.GET.get('q', '')
-
-    if q:
-        results = SearchQuerySet().filter(text=q)
+    if request.user.is_authenticated():
+        try:
+            person = Person.objects.get(userid=request.user.username)
+        except Person.DoesNotExist:
+            person = None
     else:
-        results = []
+        person = None
 
+    query = request.GET.get('q', '')
+    results = _query_results(query, person)
 
-    return HttpResponse('<br/>'.join(
-        [conditional_escape(r.search_display) for r in results]
-    ))
+    context = {
+        "query": query,
+        "results": results,
+    }
+
+    #print [r.text for r in results]
+    return render(request, "dashboard/site_search.html", context)
 
