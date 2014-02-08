@@ -181,6 +181,8 @@ else:
     SUBMISSION_PATH = "submitted_files"
     #INSTALLED_APPS = INSTALLED_APPS + ('django.contrib.admin',)
     CACHES = { 'default': {
+        #'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        #'LOCATION': '127.0.0.1:11211',
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     } }
     HAYSTACK_CONNECTIONS = {
@@ -199,6 +201,7 @@ else:
 
 # should we use the Celery job queue (for sending email, etc)?  Must have celeryd running to process jobs.
 USE_CELERY = DEPLOYED
+#USE_CELERY = True
 if USE_CELERY:
     os.environ["CELERY_LOADER"] = "django"
     INSTALLED_APPS = INSTALLED_APPS + (
@@ -215,6 +218,8 @@ if USE_CELERY:
         'batch': {},
         'email': {},
         'fast': {}, # only jobs that need to run soon, and finish quickly should go in this queue
+        'photo': {}, # separate queue for photo fetching, so we can enforce the max-5-concurrent-requests requirement
+        'sims': {}, # SIMS/reporting database queries
     }
     CELERY_SEND_TASK_ERROR_EMAILS = True
     CELERY_EMAIL_TASK_CONFIG = {
