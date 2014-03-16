@@ -1239,6 +1239,7 @@ def student_photo(request, emplid):
     user = get_object_or_404(Person, userid=request.user.username)
     configs = UserConfig.objects.filter(user=user, key='photo-agreement')
     if not (configs and configs[0].value['agree']):
+        url = reverse('dashboard.views.photo_agreement')
         return ForbiddenResponse(request, mark_safe('You must <a href="%s">confirm the photo usage agreement</a> before seeing student photos.' % (url)))
 
     # confirm user is an instructor of this student (within the last two years)
@@ -1263,7 +1264,7 @@ def student_photo(request, emplid):
         # found image in cache: was fetched previously or task already completed before we got here
         #print "cache data", emplid
         data = photo_data
-    elif task_id:
+    elif task_id and settings.USE_CELERY:
         # found a task fetching the photo: wait for it to complete and get the data
         task = fetch_photos_task.AsyncResult(task_id)
         try:
@@ -1272,7 +1273,7 @@ def student_photo(request, emplid):
             data = cache.get('photo-image-'+unicode(emplid), None)
         except celery.exceptions.TimeoutError:
             pass
-    else:
+    elif settings.USE_CELERY:
         # no cache warming: new task to get the photo
         #print "no cache", emplid
         task = fetch_photos_task.apply([emplid])
@@ -1415,6 +1416,7 @@ def export_all(request, course_slug):
     Export everything we can about this offering
     """
     import StringIO, tempfile, zipfile, os, json
+    from django.http import StreamingHttpResponse
     from django.core.servers.basehttp import FileWrapper
     from marking.views import _mark_export_data, _DecimalEncoder
     from submission.models import generate_submission_contents
@@ -1425,7 +1427,7 @@ def export_all(request, course_slug):
     handle, filename = tempfile.mkstemp('.zip')
     os.close(handle)
     z = zipfile.ZipFile(filename, 'w')
-        
+
     # add all grades CSV
     allgrades = StringIO.StringIO()
     _all_grades_output(allgrades, course)    
@@ -1460,7 +1462,7 @@ def export_all(request, course_slug):
     # return the zip file
     z.close()
     zipdata = open(filename, 'rb')
-    response = HttpResponse(FileWrapper(zipdata), content_type='application/zip')
+    response = StreamingHttpResponse(FileWrapper(zipdata), content_type='application/zip')
     response['Content-Length'] = os.path.getsize(filename)    
     response['Content-Disposition'] = 'attachment; filename="' + course.slug + '.zip"'
     try:

@@ -478,12 +478,13 @@ class OfferingFilterForm(forms.Form):
     subject = forms.ChoiceField()
     number = forms.CharField(widget=forms.TextInput(attrs={'size': '3'}), label='Course Number')
     section = forms.CharField(widget=forms.TextInput(attrs={'size': '3'}))
-    instructor = forms.CharField(widget=forms.TextInput(attrs={'size': '20'}), label='Instructor Userid')
+    instructor = forms.CharField(widget=forms.TextInput(attrs={'size': '12'}), label='Instructor Userid')
     campus = forms.ChoiceField(choices=([('', u'all')] + list(CAMPUS_CHOICES_SHORT)))
     semester = forms.ChoiceField()
     crstitle = forms.CharField(widget=forms.TextInput(attrs={'size': '20'}), label='Title Contains')
     wqb = forms.MultipleChoiceField(choices=WQB_FLAGS, initial=[], label='WQB',
                                     widget=CheckboxSelectTerse())
+    distance = forms.ChoiceField(label='Distance Ed', choices=[('', 'all'), ('dist', 'Distance'), ('on', 'On-Campus')])
     
     @classmethod
     @cached(24*3600)

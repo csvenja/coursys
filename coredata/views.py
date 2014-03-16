@@ -469,6 +469,8 @@ def course_search(request):
     return response
 
 # AJAX/JSON for student search autocomplete
+EXCLUDE_EMPLIDS = set(['953022983']) # exclude these from autocomplete
+  # 953022983 is an inactive staff account and should not be assigned things
 @login_required
 def student_search(request):
     # check permissions
@@ -616,7 +618,7 @@ class OfferingDataJson(BaseDatatableView):
     def filter_queryset(self, qs):
         # use request parameters to filter queryset
         GET = self.request.GET
-        
+
         # no cancelled courses
         qs = qs.exclude(component='CAN')
         # no courses outside the allowed semester range
@@ -677,6 +679,12 @@ class OfferingDataJson(BaseDatatableView):
             if f not in FLAG_DICT:
                 continue # not in our list of flags: not safe to getattr
             qs = qs.filter(flags=getattr(CourseOffering.flags, f))
+
+        distance = GET.get('distance', None)
+        if distance == 'dist':
+            qs = qs.filter(instr_mode='DE')
+        elif distance == 'on':
+            qs = qs.exclude(instr_mode='DE')
 
         #print qs.query
         #qs = qs[:500] # ignore requests for crazy amounts of data

@@ -26,7 +26,8 @@ class WordComponent(SubmissionComponent):
 
 class SubmittedWord(SubmittedComponent):
     component = models.ForeignKey(WordComponent, null=False)
-    word = models.FileField(upload_to=submission_upload_path, blank=False, max_length=500, storage=SubmissionSystemStorage)
+    word = models.FileField(upload_to=submission_upload_path, blank=False, max_length=500, storage=SubmissionSystemStorage,
+                            verbose_name='Word document submission')
         
     class Meta:
         app_label = 'submission'
@@ -69,7 +70,7 @@ class Word:
         def __init__(self, *args, **kwargs):
             super(Word.ComponentForm, self).__init__(*args, **kwargs)
             self.fields['description'].widget = Textarea(attrs={'cols': 50, 'rows': 5})
-            self.fields['max_size'].label=mark_safe("Max size"+submission.forms._required_star)
+            self.fields['max_size'].label=mark_safe("Max size")
 
     class SubmissionForm(submission.forms.SubmissionForm):
         class Meta:

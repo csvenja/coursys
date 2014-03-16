@@ -1,21 +1,25 @@
-{% extends "grades/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ course.name }}: Details for {{member.person.name}}{% endblock %}
 {% block h1 %}{{ course.name }}: Details for {{member.person.name}}{% endblock %}
 
-{% block grades_headextra %}
+{% block headextra %}
 <script type="text/javascript">
     $(document).ready(function() {
 	// activate dataTable ui
 	oTable = $('#student_grades').dataTable({
 	    "bJQueryUI": true,
 	    "bPaginate": false,
-            "bSort": false
+            "bSort": false,
+            "bInfo": false,
+          "bFilter": false,
 	});
 	$('#grade_history').dataTable({
 	    "bJQueryUI": true,
 	    "bPaginate": false,
             "bSort": true,
+            "bInfo": false,
+          "bFilter": false,
         "aaSorting": [[0,'asc']],
 	});
     });
@@ -29,30 +33,30 @@
     <table class="info">
         <tbody>
 	    <tr>
-                <th class="ui-state-default">Last Name</th>
+                <th scope="row">Last Name</th>
                 <td>{{ member.person.last_name }}</td>
             </tr>
 	    <tr>
-                <th class="ui-state-default">First Name</th>
+                <th scope="row">First Name</th>
                 <td>{{ member.person.first_with_pref }}
                 </td>
             </tr>
 	    <tr>
-                <th class="ui-state-default">Middle Name</th>
+                <th scope="row">Middle Name</th>
                 <td>{{ member.person.middle_name }}</td>
             </tr>
 	    <tr>
-                <th class="ui-state-default">Student Number</th>
+                <th scope="row">Student Number</th>
                 <td>{{ member.person.emplid }}</td>
             </tr>
             {% if course.labtut %}
 	    <tr>
-                <th class="ui-state-default">Lab/Tutorial Section</th>
+                <th scope="row">Lab/Tutorial Section</th>
                 <td>{{ member.labtut_section }}</td>
             </tr>
             {% endif %}
 	    <tr>
-                <th class="ui-state-default">Email Address</th>
+                <th scope="row">Email Address</th>
                 <td><a href="mailto:{{ member.person.email }}">{{ member.person.email }}</a></td>
             </tr>
         </tbody>
@@ -82,17 +86,17 @@
               
               
               {% if info.marked %}
-              	<td>{% if info.act.is_numeric %}<a href="{% url "marking.views.mark_summary_student" course_slug=course.slug activity_slug=info.act.slug userid=member.person.userid %}"><img src="{{STATIC_URL}}icons/magnifier.png" title="View Detail" alt="View Detail" /></a>{% endif %}</td>
+              	<td class="iconcell">{% if info.act.is_numeric %}<a href="{% url "marking.views.mark_summary_student" course_slug=course.slug activity_slug=info.act.slug userid=member.person.userid %}"><i class="fa fa-search" title="View detail"></i></a>{% endif %}</td>
               {% else %}
-              	<td>{% if info.act.is_numeric %}<a href="{% url "submission.views.take_ownership_and_mark" course_slug=course.slug activity_slug=info.act.slug userid=member.person.userid %}"><img src="{{STATIC_URL}}icons/page_white_edit.png" title="Mark This" alt="Mark This"/></a>{% endif %}</td>
+              	<td class="iconcell">{% if info.act.is_numeric %}<a href="{% url "submission.views.take_ownership_and_mark" course_slug=course.slug activity_slug=info.act.slug userid=member.person.userid %}"><i class="fa fa-edit" title="Mark"></i></a>{% endif %}</td>
               {% endif %}
               
 
               {% if info.sub %}
-              <td><a href="{% url "submission.views.show_student_submission_staff" course_slug=course.slug activity_slug=info.act.slug userid=member.person.userid %}"><img src="{{STATIC_URL}}icons/magnifier.png" title="{{info.act.name}} submission" alt="info" /></a>
-              <a href="{% url "submission.views.download_file" course_slug=course.slug activity_slug=info.act.slug userid=member.person.userid %}"><img src="{{STATIC_URL}}icons/page_compressed.png" title="download {{info.act.name}} submission" alt="Download" /></a></td>
+              <td class="iconcell"><a href="{% url "submission.views.show_student_submission_staff" course_slug=course.slug activity_slug=info.act.slug userid=member.person.userid %}"><i class="fa fa-search" title="View detail"></i></a>
+              <a href="{% url "submission.views.download_file" course_slug=course.slug activity_slug=info.act.slug userid=member.person.userid %}"><i class="fa fa-download" title="Download"></i></a></td>
               {% else %}
-              <td></td>
+              <td class="iconcell"></td>
               {% endif %}
             </tr>
             {% endfor %}
@@ -134,7 +138,7 @@
       ({{ gh.get_activity_status_display }})
       {% endif %}
       {% if gh.mark %}
-      <a href="{% url "marking.views.mark_summary_student" course_slug=course.slug activity_slug=gh.activity.slug userid=member.person.userid%}?activity_mark={{gh.mark.id}}"><img src="{{STATIC_URL}}icons/magnifier.png" title="View Detail" alt="View Detail" /></a>
+      <a href="{% url "marking.views.mark_summary_student" course_slug=course.slug activity_slug=gh.activity.slug userid=member.person.userid%}?activity_mark={{gh.mark.id}}"><i class="fa fa-search" title="View detail"></i></a>
       {% endif %}	
     </td>
     <td>{{ gh.entered_by.sortname }} ({{gh.entered_by.email_mailto}})</td>

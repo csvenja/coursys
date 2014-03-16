@@ -57,14 +57,6 @@ def _get_memberships(userid):
 
 @login_required
 def index(request):
-    # if a mobile device request for a non-mobile page
-    # check the cookie, continue only when 'no-mobile' is set to 'Yes'
-    if request.is_mobile:
-        if "no-mobile" in request.COOKIES and request.COOKIES["no-mobile"] == "Yes":
-            pass
-        else:
-            return HttpResponseRedirect(reverse('mobile.views.index'))
-        
     userid = request.user.username
     memberships, excluded = _get_memberships(userid)
     staff_memberships = [m for m in memberships if m.role in ['INST', 'TA', 'APPR']] # for docs link
@@ -110,7 +102,7 @@ def fake_login(request, next_page=None):
         next_page = '/'
 
     hostname = socket.gethostname()
-    if settings.DEPLOYED or hostname.startswith('courses'):
+    if settings.DEPLOY_MODE == 'production' or hostname.startswith('courses'):
         # make damn sure we're not in production
         raise NotImplementedError
     
@@ -134,7 +126,7 @@ def fake_logout(request):
     """
     import socket
     hostname = socket.gethostname()
-    if settings.DEPLOYED or hostname.startswith('courses'):
+    if settings.DEPLOY_MODE == 'production' or hostname.startswith('courses'):
         # make sure we're not in production
         raise NotImplementedError
     
