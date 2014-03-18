@@ -934,7 +934,9 @@ def photo_agreement(request):
 from haystack.query import SearchQuerySet
 from haystack.inputs import AutoQuery, Exact, Clean
 import itertools
+from urllib import urlencode
 from pages.models import Page, ACL_ROLES
+SEARCH_URL = 'http://www.sfu.ca/search.html?'
 
 def _query_results(query, person):
     if len(query) < 2:
@@ -994,6 +996,11 @@ def site_search(request):
         person = None
 
     query = request.GET.get('q', '')
+    if 'search-scope' in request.GET and request.GET['search-scope'] == 'sfu':
+        # redirect to SFU-wide search if appropriate
+        url = SEARCH_URL + urlencode({'q': query, 'search-scope': 'sfu'})
+        return HttpResponseRedirect(url)
+
     results = _query_results(query, person)
 
     context = {
