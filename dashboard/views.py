@@ -942,6 +942,7 @@ def _query_results(query, person):
     if len(query) < 2:
         return []
 
+    query = query.replace('@sfu.ca', '') # hack to make email addresses searchable like userids
     query = Clean(query)
 
     # offerings person was a member of
