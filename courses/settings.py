@@ -173,6 +173,9 @@ if DEPLOY_MODE == 'production':
         'default': {
             'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
             'URL': 'http://localhost:8983/solr'
+            #'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+            #'URL': 'http://127.0.0.1:9200/',
+            #'INDEX_NAME': 'haystack',
         },
     }
     BASE_ABS_URL = "https://courses.cs.sfu.ca"
